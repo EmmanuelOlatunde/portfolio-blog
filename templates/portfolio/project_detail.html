@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} - Mohbohlahji's Portfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <!-- Project Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'portfolio:home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'portfolio:projects' %}">Projects</a></li>
+                    <li class="breadcrumb-item active">{{ project.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h1 class="display-5 fw-bold mb-3">{{ project.title }}</h1>
+                    {% if project.featured %}
+                        <span class="badge bg-warning text-dark me-2">
+                            <i class="fas fa-star me-1"></i>Featured Project
+                        </span>
+                    {% endif %}
+                    <span class="badge bg-primary">
+                        <i class="fas fa-calendar me-1"></i>{{ project.created_date|date:"M Y" }}
+                    </span>
+                </div>
+                
+                <div class="project-actions">
+                    {% if project.github_url %}
+                        <a href="{{ project.github_url }}" class="btn btn-outline-dark me-2" target="_blank">
+                            <i class="fab fa-github me-1"></i>View Code
+                        </a>
+                    {% endif %}
+                    {% if project.live_url %}
+                        <a href="{{ project.live_url }}" class="btn btn-success" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>Live Demo
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Content -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Project Image -->
+            {% if project.image %}
+                <div class="project-image mb-4">
+                    <img src="{{ project.image.url }}" class="img-fluid rounded shadow" alt="{{ project.title }}">
+                </div>
+            {% endif %}
+            
+            <!-- Project Description -->
+            <div class="project-description">
+                <h3 class="fw-bold mb-3">Project Overview</h3>
+                <div class="content">
+                    {{ project.description|linebreaks }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Project Info -->
+            <div class="project-info bg-light p-4 rounded mb-4">
+                <h5 class="fw-bold mb-3">Project Details</h5>
+                
+                <div class="info-item mb-3">
+                    <strong>Created:</strong>
+                    <span class="text-muted">{{ project.created_date|date:"F d, Y" }}</span>
+                </div>
+                
+                <div class="info-item mb-3">
+                    <strong>Last Updated:</strong>
+                    <span class="text-muted">{{ project.updated_date|date:"F d, Y" }}</span>
+                </div>
+                
+                {% if project.github_url %}
+                    <div class="info-item mb-3">
+                        <strong>Repository:</strong>
+                        <a href="{{ project.github_url }}" target="_blank" class="text-decoration-none">
+                            <i class="fab fa-github me-1"></i>GitHub
+                        </a>
+                    </div>
+                {% endif %}
+                
+                {% if project.live_url %}
+                    <div class="info-item mb-3">
+                        <strong>Live Demo:</strong>
+                        <a href="{{ project.live_url }}" target="_blank" class="text-decoration-none">
+                            <i class="fas fa-external-link-alt me-1"></i>View Live
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Technologies Used -->
+            {% if project.technologies.exists %}
+                <div class="technologies-used bg-white p-4 rounded shadow-sm mb-4">
+                    <h5 class="fw-bold mb-3">Technologies Used</h5>
+                    <div class="tech-tags">
+                        {% for tech in project.technologies.all %}
+                            <span class="badge bg-primary me-1 mb-2">
+                                {% if tech.icon %}
+                                    <i class="{{ tech.icon }} me-1"></i>
+                                {% endif %}
+                                {{ tech.name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Projects -->
+    {% if related_projects %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="fw-bold mb-4">Related Projects</h3>
+                <div class="row">
+                    {% for related_project in related_projects %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100 hover-lift">
+                                {% if related_project.image %}
+                                    <img src="{{ related_project.image.url }}" class="card-img-top" 
+                                         alt="{{ related_project.title }}" style="height: 150px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" 
+                                         style="height: 150px;">
+                                        <i class="fas fa-project-diagram fa-2x text-white"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h6 class="card-title fw-bold">{{ related_project.title }}</h6>
+                                    <p class="card-text text-muted small">{{ related_project.short_description|truncatewords:15 }}</p>
+                                    <a href="{{ related_project.get_absolute_url }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Project
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Back to Projects -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{% url 'portfolio:projects' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>Back to All Projects
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects - Mohbohlahji's Portfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <!-- Projects Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-4">My Projects</h1>
+            <p class="lead text-muted">A showcase of my recent work and contributions</p>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <form method="GET" class="d-flex">
+                <input type="text" name="search" class="form-control me-2" 
+                       placeholder="Search projects..." value="{{ search_query }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="row">
+        {% for project in projects %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="project-card bg-white rounded shadow-sm overflow-hidden h-100 hover-lift">
+                    {% if project.image %}
+                        <img src="{{ project.image.url }}" class="card-img-top" alt="{{ project.title }}" 
+                             style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" 
+                             style="height: 200px;">
+                            <i class="fas fa-project-diagram fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">{{ project.title }}</h5>
+                        <p class="card-text text-muted flex-grow-1">{{ project.short_description }}</p>
+                        
+                        <!-- Technologies -->
+                        <div class="project-tech mb-3">
+                            {% for tech in project.technologies.all|slice:":4" %}
+                                <span class="badge bg-light text-dark me-1 mb-1">{{ tech.name }}</span>
+                            {% endfor %}
+                            {% if project.technologies.count > 4 %}
+                                <span class="badge bg-secondary">+{{ project.technologies.count|add:"-4" }} more</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Project Links -->
+                        <div class="project-links mt-auto">
+                            <a href="{{ project.get_absolute_url }}" class="btn btn-primary btn-sm me-2">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            {% if project.github_url %}
+                                <a href="{{ project.github_url }}" class="btn btn-outline-dark btn-sm me-2" target="_blank">
+                                    <i class="fab fa-github me-1"></i>Code
+                                </a>
+                            {% endif %}
+                            {% if project.live_url %}
+                                <a href="{{ project.live_url }}" class="btn btn-outline-success btn-sm" target="_blank">
+                                    <i class="fas fa-external-link-alt me-1"></i>Live
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if project.featured %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star me-1"></i>Featured
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <div class="py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No projects found</h4>
+                    {% if search_query %}
+                        <p class="text-muted">No projects match your search for "{{ search_query }}"</p>
+                        <a href="{% url 'portfolio:projects' %}" class="btn btn-primary">View All Projects</a>
+                    {% else %}
+                        <p class="text-muted">Projects will be displayed here once they are added.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if projects.has_other_pages %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <nav aria-label="Projects pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if projects.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ projects.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in projects.paginator.page_range %}
+                            {% if projects.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if projects.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ projects.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ projects.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+Django
+Pillow
+django-crispy-forms
+crispy-bootstrap5
+django-ckeditor
+python-decouple
+whitenoise
+gunicorn
