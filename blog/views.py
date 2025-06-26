@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from .models import Post, Category, Tag, Comment
+from .models import Post, Category, Tag
 from .forms import CommentForm
 
 def blog_home(request):
@@ -22,6 +22,8 @@ def blog_home(request):
 def post_list(request):
     post_list = Post.objects.filter(status='published')
     search_query = request.GET.get('search')
+    categories = Category.objects.annotate(post_count=Count('post')).filter(post_count__gt=0)
+    popular_posts = Post.objects.filter(status='published').order_by('-views')[:5]
     
     if search_query:
         post_list = post_list.filter(
@@ -37,6 +39,8 @@ def post_list(request):
     context = {
         'posts': posts,
         'search_query': search_query,
+        'categories': categories,
+        'popular_posts': popular_posts,
     }
     return render(request, 'blog/post_list.html', context)
 
